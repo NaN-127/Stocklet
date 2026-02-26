@@ -1,35 +1,31 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./components/common/Navbar";
+import ProtectRoute from "./components/common/ProtectRoute";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignUpPage";
+import DashboardPage from "./pages/DashboardPage";
+import StockDetailsPage from "./pages/StockDetailsPage";
+import UserPanelPage from "./pages/UserPanelPage";
+import AdminPanelPage from "./pages/AdminPanelPage";
+import AdminUsersPage from "./pages/AdminUsersPage";
+import MarketPage from "./pages/MarketPage";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Navbar />
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/" element={<ProtectRoute><DashboardPage /></ProtectRoute>} />
+        <Route path="/market" element={<ProtectRoute><MarketPage /></ProtectRoute>} />
+        <Route path="/stocks/:symbol" element={<ProtectRoute><StockDetailsPage /></ProtectRoute>} />
+        <Route path="/transactions" element={<ProtectRoute><UserPanelPage /></ProtectRoute>} />
+        <Route path="/admin" element={<ProtectRoute adminOnly={true}><AdminPanelPage /></ProtectRoute>} />
+        <Route path="/admin/users" element={<ProtectRoute adminOnly={true}><AdminUsersPage /></ProtectRoute>} />
+      </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
