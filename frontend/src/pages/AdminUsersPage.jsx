@@ -36,6 +36,12 @@ function AdminUsersPage() {
 
   const totalUsers = users.length;
   const adminCount = users.filter(u => u.role === "admin").length;
+  const formatDate = (value) => {
+    if (!value) return "N/A";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "N/A";
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  };
 
   if (loading) {
     return (
@@ -133,7 +139,7 @@ function AdminUsersPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-gray-500 dark:text-gray-400">
-                      {new Date(u.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      {formatDate(u.createdAt)}
                     </td>
                     <td className="px-6 py-4 text-gray-700 dark:text-gray-300 font-semibold">
                       {u.watchList?.length || 0} stocks

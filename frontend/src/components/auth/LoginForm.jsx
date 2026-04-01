@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { useTheme } from "../../context/ThemeContext";
+import { useAuth } from "../../context/useAuth";
+import { useTheme } from "../../context/useTheme";
 import { Moon, Sun, AlertCircle } from "lucide-react";
 
 function LoginForm() {

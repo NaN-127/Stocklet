@@ -2,7 +2,7 @@ import React from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { Activity } from "lucide-react";
 
-function ChartComponent({ history, period, onPeriodChange, strokeColor, fillColor }) {
+function ChartComponent({ history, period, onPeriodChange, strokeColor }) {
   const color = strokeColor || "#10b981";
   const gradientId = "chartGradient";
 

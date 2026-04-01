@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Bookmark, BookmarkMinus, ShieldCheck, TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import api from "../services/api";
 import ChartComponent from "../components/stock/ChartComponent";
 
@@ -31,7 +31,7 @@ function StockDetailsPage() {
         const quoteRes = await api.get(`/stocks/${sym}`);
         setStock(quoteRes.data);
         const histRes = await api.get(`/stocks/history/${sym}?days=${days}`);
-        setHistory(histRes.data);
+        setHistory(histRes.data.history || []);
       } catch (err) {
         console.error(err);
         setError("Failed to load stock. Check the symbol or try again.");

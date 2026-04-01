@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, Loader2, Bookmark, TrendingUp, TrendingDown, BookmarkX } from "lucide-react";
 import api from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import StockCard from "../components/stock/StockCard";
 import ChartComponent from "../components/stock/ChartComponent";
 import TransactionTable from "../components/trading/TransactionTable";
@@ -21,7 +21,7 @@ function DashboardPage() {
 
   const [watchlistStocks, setWatchlistStocks] = useState([]);
 
-  const fetchData = async (searchSymbol) => {
+  const fetchData = useCallback(async (searchSymbol) => {
 
     setLoading(true);
     setError(null);
@@ -38,7 +38,7 @@ function DashboardPage() {
         api.get("/transactions/my-transactions"),
       ]);
       setStock(quoteRes.data);
-      setHistory(historyRes.data);
+      setHistory(historyRes.data.history || []);
       setTransactions(txRes.data.transactions?.slice(0, 5) || []);
       setSymbol(searchSymbol.toUpperCase());
 
@@ -49,15 +49,11 @@ function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchData("AAPL");
-  }, []);
-
-  useEffect(() => {
-    if (stock) fetchData(symbol);
   }, [period]);
+
+  useEffect(() => {
+    fetchData(symbol);
+  }, [fetchData, symbol]);
 
   useEffect(() => {
     if (!watchlist || watchlist.length === 0) {
@@ -82,7 +78,7 @@ function DashboardPage() {
     
     e.preventDefault();
     if (searchInput.trim()) {
-      fetchData(searchInput.trim());
+      setSymbol(searchInput.trim().toUpperCase());
       setSearchInput("");
     }
   };

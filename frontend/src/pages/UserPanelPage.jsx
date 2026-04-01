@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { ArrowRightLeft, CheckCircle2, ClipboardList, Loader2, Bookmark, TrendingUp } from "lucide-react";
 import TransactionTable from "../components/trading/TransactionTable";
 
 function UserPanelPage() {
-  const { user } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [watchlist, setWatchlist] = useState([]);
@@ -46,6 +44,12 @@ function UserPanelPage() {
 
   const executedTxns = transactions.filter(t => t.status === "COMPLETED").length;
   const pendingTxns = transactions.filter(t => t.status === "PENDING").length;
+  const formatDate = (value) => {
+    if (!value) return "N/A";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "N/A";
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  };
 
   if (loading) {
 
@@ -140,7 +144,7 @@ function UserPanelPage() {
                       <span className="text-gray-500 text-xs">shares</span>
                     </td>
                     <td className="px-6 py-4 text-gray-500 dark:text-gray-400 text-sm">
-                      {new Date(tx.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      {formatDate(tx.createdAt)}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">

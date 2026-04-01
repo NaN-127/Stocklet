@@ -1,37 +1,47 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { useEffect, useEffectEvent, useState } from "react";
 import api from "../services/api";
-
-const AuthContext = createContext();
-
-export const useAuth = () => useContext(AuthContext);
+import AuthContext from "./authContext";
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const initialToken = typeof window === "undefined" ? null : localStorage.getItem("token");
+  const [user, setUser] = useState(() => {
+    if (typeof window === "undefined") return null;
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) return null;
+    try {
+      return JSON.parse(storedUser);
+    } catch {
+      localStorage.removeItem("user");
+      return null;
+    }
+  });
+  const [token, setToken] = useState(() => {
+    return initialToken;
+  });
   const [watchlist, setWatchlist] = useState([]);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
-
-    if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
-      setToken(storedToken);
-      api.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
-      fetchWatchlist();
-    }
-    setLoading(false);
-  }, []);
-
-  const fetchWatchlist = async () => {
+  async function refreshWatchlist() {
     try {
       const response = await api.get("/watchlist");
       setWatchlist(response.data.watchList || []);
     } catch (error) {
       console.error("Error fetching watchlist:", error);
     }
-  };
+  }
+
+  const fetchWatchlistOnBoot = useEffectEvent(async () => {
+    await refreshWatchlist();
+  });
+
+  useEffect(() => {
+    if (!token) {
+      delete api.defaults.headers.common["Authorization"];
+      return;
+    }
+
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    fetchWatchlistOnBoot();
+  }, [token]);
 
   const login = async (email, password) => {
     try {
@@ -43,7 +53,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("user", JSON.stringify(userData));
       localStorage.setItem("token", token);
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      fetchWatchlist();
+      refreshWatchlist();
       return { success: true };
     } catch (err) {
       console.error(err);
@@ -74,7 +84,7 @@ export const AuthProvider = ({ children }) => {
     try {
 
       await api.post("/watchlist", { symbol });
-      fetchWatchlist();
+      refreshWatchlist();
     } catch (err) {
       console.error("Failed to add to watchlist:", err);
     }
@@ -84,7 +94,7 @@ export const AuthProvider = ({ children }) => {
     try {
 
       await api.delete(`/watchlist/${symbol}`);
-      fetchWatchlist();
+      refreshWatchlist();
     } catch (err) {
       console.error("Failed to remove from watchlist:", err);
       
@@ -92,8 +102,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, register, watchlist, addToWatchlist, removeFromWatchlist }}>
-      {!loading && children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ user, token, login, logout, register, watchlist, addToWatchlist, removeFromWatchlist }}>{children}</AuthContext.Provider>
   );
 };
