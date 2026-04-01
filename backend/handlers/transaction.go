@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 func getUserFromContext(c *gin.Context) (model.User, bool) {
@@ -71,7 +72,8 @@ func GetMyTransactions(c *gin.Context) {
 	defer cancel()
 
 	collection := config.DB.Collection("transactions")
-	cursor, err := collection.Find(ctx, bson.M{"user": user.ID})
+	findOptions := options.Find().SetSort(bson.D{{Key: "createdAt", Value: -1}, {Key: "_id", Value: -1}})
+	cursor, err := collection.Find(ctx, bson.M{"user": user.ID}, findOptions)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Server error"})
 		return
@@ -95,7 +97,8 @@ func GetAllTransactions(c *gin.Context) {
 	defer cancel()
 
 	collection := config.DB.Collection("transactions")
-	cursor, err := collection.Find(ctx, bson.M{})
+	findOptions := options.Find().SetSort(bson.D{{Key: "createdAt", Value: -1}, {Key: "_id", Value: -1}})
+	cursor, err := collection.Find(ctx, bson.M{}, findOptions)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Server error"})
 		return

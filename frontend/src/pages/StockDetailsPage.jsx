@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Bookmark, BookmarkMinus, ShieldCheck, TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
 import { useAuth } from "../context/useAuth";
 import api from "../services/api";
@@ -7,6 +7,7 @@ import ChartComponent from "../components/stock/ChartComponent";
 
 function StockDetailsPage() {
   const { symbol: urlSymbol } = useParams();
+  const navigate = useNavigate();
   const { user, watchlist, addToWatchlist, removeFromWatchlist } = useAuth();
 
   const [stock, setStock] = useState(null);
@@ -59,6 +60,9 @@ function StockDetailsPage() {
       });
       setTradeMessage({ type: "success", text: `${type} request submitted and pending approval.` });
       setQuantity("");
+      setTimeout(() => {
+        navigate("/transactions");
+      }, 600);
     } catch (err) {
       setTradeMessage({ type: "error", text: err.response?.data?.message || "Transaction failed." });
     } finally {

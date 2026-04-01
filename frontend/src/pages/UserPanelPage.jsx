@@ -1,44 +1,54 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useCallback, useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import api from "../services/api";
 import { ArrowRightLeft, CheckCircle2, ClipboardList, Loader2, Bookmark, TrendingUp } from "lucide-react";
 import TransactionTable from "../components/trading/TransactionTable";
 
 function UserPanelPage() {
+  const location = useLocation();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [watchlist, setWatchlist] = useState([]);
   const [watchlistStocks, setWatchlistStocks] = useState([]);
 
-  useEffect(() => {
-
-    const fetchAll = async () => {
-      try {
-        const [txRes, wlRes] = await Promise.all([
-          api.get("/transactions/my-transactions"),
-          api.get("/watchlist"),
-        ]);
-        setTransactions(txRes.data.transactions || []);
-        const symbols = wlRes.data.watchList || [];
-        setWatchlist(symbols);
-        if (symbols.length > 0) {
-          const stockResults = await Promise.allSettled(
-            symbols.map(sym => api.get(`/stocks/${sym}`))
-          );
-          setWatchlistStocks(
-            stockResults
-              .filter(r => r.status === "fulfilled")
-              .map(r => r.value.data)
-          );
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+  const fetchAll = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [txRes, wlRes] = await Promise.all([
+        api.get("/transactions/my-transactions"),
+        api.get("/watchlist"),
+      ]);
+      setTransactions(txRes.data.transactions || []);
+      const symbols = wlRes.data.watchList || [];
+      setWatchlist(symbols);
+      if (symbols.length > 0) {
+        const stockResults = await Promise.allSettled(
+          symbols.map(sym => api.get(`/stocks/${sym}`))
+        );
+        setWatchlistStocks(
+          stockResults
+            .filter(r => r.status === "fulfilled")
+            .map(r => r.value.data)
+        );
+      } else {
+        setWatchlistStocks([]);
       }
-    };
-    fetchAll();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll, location.key]);
+
+  useEffect(() => {
+    const onFocus = () => fetchAll();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [fetchAll]);
 
   const totalTxns = transactions.length;
 
@@ -66,8 +76,19 @@ function UserPanelPage() {
       <div className="max-w-[1400px] mx-auto p-6 md:p-8 space-y-8">
 
         <div className="mb-2">
-          <h1 className="text-3xl font-bold tracking-tight mb-1">Transaction History</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">All your buy and sell orders in one place.</p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight mb-1">Transaction History</h1>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">All your buy and sell orders in one place.</p>
+            </div>
+            <button
+              onClick={fetchAll}
+              disabled={loading}
+              className="px-4 py-2 text-sm font-semibold rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a1d24] hover:border-blue-300 dark:hover:border-blue-600 disabled:opacity-60"
+            >
+              {loading ? "Refreshing..." : "Refresh"}
+            </button>
+          </div>
         </div>
 
         <div className="grid sm:grid-cols-3 gap-6">

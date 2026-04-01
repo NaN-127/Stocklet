@@ -26,12 +26,14 @@ func RegisterRoutes(r *gin.Engine) {
 	transactions := api.Group("/transactions")
 	transactions.Use(middleware.AuthMiddleware())
 	{
+		transactions.POST("", handlers.CreateTransaction)
 		transactions.POST("/", handlers.CreateTransaction)
 		transactions.GET("/my-transactions", handlers.GetMyTransactions)
 
-		adminTx := transactions.Group("/")
+		adminTx := transactions.Group("")
 		adminTx.Use(middleware.AdminMiddleware())
 		{
+			adminTx.GET("", handlers.GetAllTransactions)
 			adminTx.GET("/", handlers.GetAllTransactions)
 			adminTx.PUT("/:id/approve", handlers.ApproveTransaction)
 			adminTx.PUT("/:id/reject", handlers.RejectTransaction)
@@ -41,7 +43,9 @@ func RegisterRoutes(r *gin.Engine) {
 	watchlist := api.Group("/watchlist")
 	watchlist.Use(middleware.AuthMiddleware())
 	{
+		watchlist.POST("", handlers.AddToWatchList)
 		watchlist.POST("/", handlers.AddToWatchList)
+		watchlist.GET("", handlers.GetWatchList)
 		watchlist.GET("/", handlers.GetWatchList)
 		watchlist.DELETE("/:symbol", handlers.RemoveFromWatchList)
 	}
@@ -49,6 +53,7 @@ func RegisterRoutes(r *gin.Engine) {
 	users := api.Group("/users")
 	users.Use(middleware.AuthMiddleware(), middleware.AdminMiddleware())
 	{
+		users.GET("", handlers.GetAllUsers)
 		users.GET("/", handlers.GetAllUsers)
 		users.DELETE("/:id", handlers.DeleteUser)
 	}
