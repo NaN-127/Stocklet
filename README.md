@@ -1,4 +1,3 @@
-
 # 📈 Stocklet
 
 A full-stack stock trading platform where users can look up real-time stock quotes, track price history, manage a personal watchlist, and place buy/sell orders. Admins can approve or reject pending transactions and manage users.
@@ -61,38 +60,28 @@ stocklet/
 ## 🔌 API Endpoints
 
 ### Auth
-| Method | Endpoint             | Description       | Auth |
-|--------|----------------------|-------------------|------|
-| POST   | `/api/auth/register` | Create new user   | ❌   |
-| POST   | `/api/auth/login`    | Login & get token | ❌   |
+- `POST /api/auth/register` — Create new user
+- `POST /api/auth/login` — Login & get token
 
 ### Stocks
-| Method | Endpoint                      | Description          | Auth |
-|--------|-------------------------------|----------------------|------|
-| GET    | `/api/stocks/:symbol`         | Get real-time quote  | ❌   |
-| GET    | `/api/stocks/:symbol/history` | Get price history    | ❌   |
+- `GET /api/stocks/:symbol` — Get real-time quote
+- `GET /api/stocks/:symbol/history` — Get price history
 
 ### Transactions
-| Method | Endpoint                            | Description              | Auth     |
-|--------|-------------------------------------|--------------------------|----------|
-| POST   | `/api/transactions`                 | Place a new order        | 🔒 User  |
-| GET    | `/api/transactions/my-transactions` | Get your transactions    | 🔒 User  |
-| GET    | `/api/transactions`                 | Get all transactions     | 🔒 Admin |
-| PUT    | `/api/transactions/:id/approve`     | Approve a transaction    | 🔒 Admin |
-| PUT    | `/api/transactions/:id/reject`      | Reject a transaction     | 🔒 Admin |
+- `POST /api/transactions` — Place a new order 🔒
+- `GET /api/transactions/my-transactions` — Get your transactions 🔒
+- `GET /api/transactions` — Get all transactions *(admin)* 🔒
+- `PUT /api/transactions/:id/approve` — Approve a transaction *(admin)* 🔒
+- `PUT /api/transactions/:id/reject` — Reject a transaction *(admin)* 🔒
 
 ### Watchlist
-| Method | Endpoint                  | Description           | Auth    |
-|--------|---------------------------|-----------------------|---------|
-| POST   | `/api/watchlist`          | Add symbol            | 🔒 User |
-| GET    | `/api/watchlist`          | Get your watchlist    | 🔒 User |
-| DELETE | `/api/watchlist/:symbol`  | Remove symbol         | 🔒 User |
+- `POST /api/watchlist` — Add symbol 🔒
+- `GET /api/watchlist` — Get your watchlist 🔒
+- `DELETE /api/watchlist/:symbol` — Remove symbol 🔒
 
-### Users (Admin)
-| Method | Endpoint           | Description      | Auth     |
-|--------|--------------------|------------------|----------|
-| GET    | `/api/users`       | List all users   | 🔒 Admin |
-| DELETE | `/api/users/:id`   | Delete a user    | 🔒 Admin |
+### Users
+- `GET /api/users` — List all users *(admin)* 🔒
+- `DELETE /api/users/:id` — Delete a user *(admin)* 🔒
 
 ## 🚀 Getting Started
 
@@ -148,3 +137,6 @@ The app will be running at `http://localhost:5173`.
 4. All authenticated requests include the token as `Authorization: Bearer <token>`
 5. Auth middleware validates the token and attaches the user to the request context
 
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
